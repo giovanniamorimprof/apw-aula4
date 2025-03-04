@@ -1,3 +1,4 @@
+
 class UserView {
 
     // Renderizar a lista de usuários

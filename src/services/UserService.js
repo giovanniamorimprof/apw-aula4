@@ -1,71 +1,71 @@
 class UserService {
+    constructor() {
+        this.baseUrl = 'https://67c6f465c19eb8753e780d30.mockapi.io/api/v1/users';
+    }
+
+    // Método privado para realizar requisições HTTP
+    async #makeRequest(url, options = {}) {
+        try {
+            const response = await fetch(url, options);
+
+            // Verifica se a resposta foi bem-sucedida
+            if (!response.ok) {
+                const errorMessage = `Erro HTTP: ${response.status} - ${response.statusText}`;
+                throw new Error(errorMessage);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Erro na requisição:", error.message || error);
+            throw error; // Propaga o erro para ser tratado pelo chamador
+        }
+    }
+
     // Função para obter todos os usuários
     async getAllUsers() {
         try {
-            const response = await fetch('https://67c6f465c19eb8753e780d30.mockapi.io/api/v1/users');
-            const users = await response.json();
-            console.log("Usuários carregados do serviço:", users); // Verificar retorno
+            const users = await this.#makeRequest(this.baseUrl);
+            console.log("Usuários carregados do serviço:", users);
             return users;
         } catch (error) {
             console.error("Erro ao buscar usuários:", error);
-            return []; // Retornar um array vazio para evitar erro de undefined
+            return []; // Retorna um array vazio em caso de falha
         }
     }
-    
+
     // Função para obter um usuário por ID
     async getUserById(userId) {
-        const response = await fetch(`https://67c6f465c19eb8753e780d30.mockapi.io/api/v1/users/${userId}`);
-        if (!response.ok) {
-            throw new Error('Erro ao obter usuário');
-        }
-        return await response.json();
+        const url = `${this.baseUrl}/${userId}`;
+        return this.#makeRequest(url);
     }
 
     // Função para criar um novo usuário
     async createUser(userData) {
-        const response = await fetch('https://67c6f465c19eb8753e780d30.mockapi.io/api/v1/users', {
+        const options = {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao criar usuário');
-        }
-        return await response.json();
+        };
+        return this.#makeRequest(this.baseUrl, options);
     }
 
     // Função para atualizar um usuário
     async updateUser(userId, updatedData) {
-        console.log("Atualizando usuário com ID:", userId);
-        const response = await fetch(`https://67c6f465c19eb8753e780d30.mockapi.io/api/v1/users/${userId}`, {
+        const url = `${this.baseUrl}/${userId}`;
+        const options = {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao atualizar usuário');
-        }
-        return await response.json();
+        };
+        return this.#makeRequest(url, options);
     }
 
     // Função para deletar um usuário
     async deleteUser(userId) {
-        const response = await fetch(`https://67c6f465c19eb8753e780d30.mockapi.io/api/v1/users/${userId}`, {
-            method: 'DELETE',
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao deletar usuário');
-        }
-        return await response.json();
+        const url = `${this.baseUrl}/${userId}`;
+        const options = { method: 'DELETE' };
+        return this.#makeRequest(url, options);
     }
 }
 
-// Exportar a classe UserService para uso em outros arquivos
 const userService = new UserService();
