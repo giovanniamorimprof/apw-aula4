@@ -18,6 +18,10 @@ class Header {
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Contatos</a>
                             </li>
+                            <!-- Link para a página de Produtos -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="products.html">Produtos</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
