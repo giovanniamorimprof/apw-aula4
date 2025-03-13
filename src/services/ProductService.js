@@ -46,7 +46,16 @@ class ProductService {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(productData)
         };
-        return this.#makeRequest(this.baseUrl, options);
+
+        try {
+            // Faz a requisição para a API
+            const response = await this.#makeRequest(this.baseUrl, options);
+            // Retorna o produto criado
+            return response;
+        } catch (error) {
+            console.error('Erro ao criar produto no serviço:', error);
+            throw error; // Propaga o erro para o Controller tratar
+        }
     }
 
     // Função para atualizar um produto
@@ -57,7 +66,17 @@ class ProductService {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedData)
         };
-        return this.#makeRequest(url, options);
+
+        try {
+            // Faz a requisição para a API
+            const response = await this.#makeRequest(url, options);
+
+            // Retorna o produto atualizado
+            return response;
+        } catch (error) {
+            console.error('Erro ao atualizar produto no serviço:', error);
+            throw error; // Propaga o erro para o Controller tratar
+        }
     }
 
     // Função para deletar um produto

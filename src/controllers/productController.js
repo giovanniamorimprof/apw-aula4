@@ -1,72 +1,86 @@
 class ProductController {
-    constructor() {
-        this.model = new ProductModel();
-        this.loadProducts();
+    constructor(productView) {
+        this.productService = new ProductService(); // Instanciando o serviço de usuário
+        this.productView = productView; // Passando a instância de ProductView
     }
 
-    loadProducts() {
-        const products = this.model.getProducts();
-        const productList = document.getElementById("productList");
-
-        if (!productList) return; // Evita erro caso a página não tenha essa lista
-
-        productList.innerHTML = "";
-        products.forEach(product => {
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
-            li.textContent = `${product.name} - ${product.email}`;
-
-            const buttonGroup = document.createElement("div");
-
-            const editButton = document.createElement("button");
-            editButton.className = "btn btn-warning btn-sm me-2";
-            editButton.textContent = "Editar";
-            editButton.onclick = () => this.editProduct(product.id);
-
-            const deleteButton = document.createElement("button");
-            deleteButton.className = "btn btn-danger btn-sm";
-            deleteButton.textContent = "Excluir";
-            deleteButton.onclick = () => this.deleteProduct(product.id);
-
-            buttonGroup.appendChild(editButton);
-            buttonGroup.appendChild(deleteButton);
-            li.appendChild(buttonGroup);
-            productList.appendChild(li);
-        });
-    }
-
-    saveProduct(event) {
-        event.preventDefault();
-        const id = document.getElementById("productId").value;
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-
-        if (id) {
-            this.model.updateProduct(id, { id, name, email });
-        } else {
-            this.model.saveProduct({ id: Date.now(), name, email });
-        }
-
-        this.loadProducts();
-        document.getElementById("productForm").reset();
-        document.getElementById("productId").value = "";
-    }
-
-    editProduct(id) {
-        const product = this.model.getProducts().find(product => product.id === id);
-        if (product) {
-            window.location.href = `/apw-aula4/views/atualizar.html?id=${product.id}&name=${encodeURIComponent(product.name)}&email=${encodeURIComponent(product.email)}`;
-        } else {
-            console.error("Usuário não encontrado!");
+    // Método privado para executar operações assíncronas e tratar erros
+    async #executeOperation(operation, successCallback, errorCallback) {
+        try {
+            const result = await operation();
+            if (successCallback) successCallback(result);
+            return result;
+        } catch (error) {
+            console.error('Erro na operação:', error.message || error);
+            if (errorCallback) errorCallback(error);
         }
     }
 
+    // Listar usuários
+    async listProducts() {
+        this.#executeOperation(
+            () => this.productService.getAllProducts(),
+            (products) => {
+                console.log("Usuários recebidos no Controller:", products);
+                if (!products || products.length === 0) {
+                    console.warn("Nenhum usuário retornado.");
+                    return;
+                }
+                this.productView.renderProductList(products);
+            },
+            (error) => console.error('Erro ao listar usuários:', error)
+        );
+    }
 
-    deleteProduct(id) {
-        this.model.deleteProduct(id);
-        this.loadProducts();
+    // Criar novo produto
+    async createProduct(productData) {
+        try {
+            // Chama o serviço para criar o produto
+            const newProduct = await this.productService.createProduct(productData);
+            
+            // Renderiza o novo produto na interface
+            this.productView.renderNewProduct(newProduct);
+        } catch (error) {
+            console.error('Erro ao criar produto:', error);
+        }
+    }
+
+    async updateProduct(productId, updatedData) {
+        try {
+            // Chama o serviço para atualizar o produto
+            const updatedProduct = await this.productService.updateProduct(productId, updatedData);
+            
+            // Atualiza o produto na interface
+            this.productView.updateProductInView(updatedProduct);
+        } catch (error) {
+            console.error('Erro ao atualizar produto:', error);
+        }
+    }
+
+    // Deletar um usuário
+    async deleteProduct(productId) {
+        this.#executeOperation(
+            () => this.productService.deleteProduct(productId),
+            () => this.productView.removeProductFromView(productId),
+            (error) => console.error('Erro ao deletar usuário:', error)
+        );
+    }
+
+    // Obter um usuário pelo ID
+    async getProductById(productId) {
+        return this.#executeOperation(
+            () => this.productService.getProductById(productId),
+            null, // Não há necessidade de callback de sucesso aqui
+            (error) => console.error('Erro ao obter usuário:', error)
+        );
     }
 }
 
-// Torna disponível globalmente
-window.ProductController = ProductController;
+// Criação da instância de ProductView, agora passando productController para ProductView
+const productView = new ProductView();
+
+// Criação da instância do controlador com a instância do ProductView
+const productController = new ProductController(productView);
+
+// Listando os usuários na inicialização
+productController.listProducts();

@@ -10,15 +10,8 @@ class Header {
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                                <a class="nav-link active" aria-current="page" href="index.html">Home</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Sobre</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Contatos</a>
-                            </li>
-                            <!-- Link para a página de Produtos -->
                             <li class="nav-item">
                                 <a class="nav-link" href="products.html">Produtos</a>
                             </li>
@@ -27,11 +20,6 @@ class Header {
                 </div>
             </nav>
         `;
-        
         document.getElementById('header').innerHTML = headerHTML;
     }
 }
-
-// Criar uma instância de Header e renderizar na página
-const header = new Header();
-header.render();
