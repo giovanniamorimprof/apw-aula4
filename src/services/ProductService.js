@@ -58,19 +58,33 @@ class ProductService {
         }
     }
 
-    // Função para atualizar um produto
     async updateProduct(productId, updatedData) {
+        if (!productId || !updatedData) {
+            throw new Error("ID do produto ou dados de atualização inválidos.");
+        }
+    
         const url = `${this.baseUrl}/${productId}`;
         const options = {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedData)
         };
-
+    
         try {
+            console.log("Enviando requisição PUT para:", url);
+            console.log("Dados enviados:", updatedData);
+    
             // Faz a requisição para a API
             const response = await this.#makeRequest(url, options);
-
+    
+            console.log("Resposta recebida:", response);
+    
+            // Verifica se a resposta tem conteúdo
+            if (response.status === 204) {
+                console.warn("A API não retornou nenhum conteúdo após a atualização.");
+                return null; // Retorna null se não houver conteúdo
+            }
+    
             // Retorna o produto atualizado
             return response;
         } catch (error) {
